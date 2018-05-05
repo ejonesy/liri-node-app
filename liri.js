@@ -9,22 +9,6 @@ var Spotify = require("node-spotify-api");
 var client = new Twitter(keys.twitter);
 var spotify = new Spotify(keys.spotify);
 
-if (process.argv[2] === "my-tweets") {
-    getTweets();
-}
-
-else if (process.argv[2] === "spotify-this-song") {
-    getTunes();
-}
-
-else if (process.argv[2] === "movie-this") {
-    getFilm();
-}
-else if (process.argv[2] === "do-what-it-says") {
-    doIt();
-    getTunes();
-}
-
 var getTweets = function() {
     var params = {screen_name: 'eveonice'};
     client.get('statuses/user_timeline', params, function(error, tweets, response) {
@@ -38,17 +22,19 @@ var getTweets = function() {
     })
 }
 
-var getTunes = function() {
-    spotify.search({ type: 'track', query: process.argv[3], limit: 3}, function(err, data) {
+var search = process.argv[3];
+
+var getTunes = function(searchSong) {
+    spotify.search({ type: 'track', query: searchSong, limit: 3}, function(err, data) {
         //console.log(JSON.stringify(data, null, 0));
         if (err) {
         return console.log(err);
         }
-        if (process.argv[3] === undefined) {
-            process.argv[3] === "I Want it That Way";
+        if (searchSong === undefined) {
+            searchSong === "I Want it That Way";
         }
         if (!err) {
-        console.log("Song: " + process.argv[3]);
+        console.log("Song: " + searchSong);
         console.log("Artist: " + data.tracks.items[0].album.artists[0].name);
 
         //Album titles did not seem to be available in the JSON
@@ -60,7 +46,6 @@ var getTunes = function() {
 }
 
 var getFilm = function() {
-    
 
     if (process.argv[3] === undefined) {
         movie = "Mr. Nobody"
@@ -91,8 +76,23 @@ var doIt = function() {
         }
         console.log(data);
         var dataArr = data.split(",");
-        console.log(dataArr);
+        console.log(dataArr[1]);
+        getTunes(dataArr[1]);
     });
-    getTunes();
 }
 
+if (process.argv[2] === "my-tweets") {
+    getTweets();
+}
+
+else if (process.argv[2] === "spotify-this-song") {
+    getTunes(search);
+}
+
+else if (process.argv[2] === "movie-this") {
+    getFilm();
+}
+else if (process.argv[2] === "do-what-it-says") {
+    doIt();
+    //getTunes(search);
+}
